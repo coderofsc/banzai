@@ -102,7 +102,7 @@ class Employees_Model extends Model {
         $stmt = DB::prepare('INSERT INTO '.$this->table.' (fio,sex,pos_id,bd_year) VALUES (:fio, :sex, :pos_id, :bd_year)');
         $id = $stmt -> execute(array('fio'=>$data['fio'], 'sex'=>$data['sex'], 'bd_year'=>$data['bd_year'], 'pos_id'=>$data['pos_id']));
 
-        $this->update_groups($id, $data["id_group"]);
+        $this->update_groups(DB::lastInsertId(), $data["id_group"]);
     }
 
 
