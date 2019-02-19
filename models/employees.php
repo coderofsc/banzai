@@ -14,6 +14,13 @@ class Employees_Model extends Model {
         return self::$instance;
     }
 
+    /**
+     * Возвращает массив групп для сотрудников $ar_id_employees, группированных по $key
+     * @param $ar_id_employees - массив ID сотрудников
+     * @param string $key - имя поля для ключа результата
+     * @return array - список групп
+     */
+
     public function get_employees_groups($ar_id_employees, $key = "employee_id") {
         $result = array();
 
@@ -42,17 +49,21 @@ class Employees_Model extends Model {
     public function get_array() {
         $data = $ar_id_employees = array();
 
+        // Получаем всех сотрудников
         $qres = DB::query('SELECT '.$this->table.'.*, positions.name pos_name FROM '.$this->table.' LEFT JOIN positions ON (positions.id = '.$this->table.'.pos_id)');
         $employees = $qres->fetchAll(PDO::FETCH_ASSOC);
 
+        // Устанавливаем ключ ввиде ID сотрудника и собираем массив ID сотрудников
         foreach ($employees as $item) {
             $id = $item["id"];
             $data[$id] = $item;
             $ar_id_employees[] = $id;
         }
 
+        // Получаем все группы всех сотрудников $ar_id_employees
         $ar_groups = $this->get_employees_groups($ar_id_employees);
 
+        // Устанавливаем группы сотрудникам в соответствии ID
         foreach ($ar_groups as $employee_id => $item) {
             $data[$employee_id]["ar_groups"] = $item;
         }
@@ -62,9 +73,11 @@ class Employees_Model extends Model {
 
     private function update_groups($id, $ar_groups) {
 
+        // Удаляем связи сотрудник<->группа
         $res = DB::exec('DELETE FROM employees_groups WHERE employee_id = '.DB::quote($id));
 
 
+        // Устанавливаем новые связи сотрудник<->группа
         if ($ar_groups) {
             $ar_values = array();
             foreach ($ar_groups as $group_id) {
